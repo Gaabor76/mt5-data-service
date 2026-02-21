@@ -221,12 +221,12 @@ class MT5Service:
                     {
                         "broker_server": broker_server,
                         "symbol": symbol,
-                        "time_msc": int(t[2]),   # time_msc field
-                        "bid": float(t[3]),       # bid
-                        "ask": float(t[4]),       # ask
-                        "last": float(t[5]),      # last
-                        "volume": float(t[6]),    # volume
-                        "flags": int(t[7]),       # flags
+                        "time_msc": int(t['time_msc']),
+                        "bid": float(t['bid']),
+                        "ask": float(t['ask']),
+                        "last": float(t['last']),
+                        "volume": float(t['volume']),
+                        "flags": int(t['flags']),
                     }
                     for t in chunk
                 ]
@@ -334,14 +334,14 @@ class MT5Service:
                         "broker_server": broker_server,
                         "symbol": symbol,
                         "timeframe": timeframe.upper(),
-                        "time": int(r[0]),              # time (unix)
-                        "open": float(r[1]),             # open
-                        "high": float(r[2]),             # high
-                        "low": float(r[3]),              # low
-                        "close": float(r[4]),            # close
-                        "tick_volume": int(r[5]),        # tick_volume
-                        "spread": int(r[6]),             # spread
-                        "real_volume": int(r[7]),        # real_volume
+                        "time": int(r['time']),
+                        "open": float(r['open']),
+                        "high": float(r['high']),
+                        "low": float(r['low']),
+                        "close": float(r['close']),
+                        "tick_volume": int(r['tick_volume']),
+                        "spread": int(r['spread']),
+                        "real_volume": int(r['real_volume']),
                     }
                     for r in chunk
                 ]
