@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     mt5_max_concurrent_downloads: int = 2
     mt5_chunk_size: int = 100000  # Records per DB insert batch
 
+    # FRED / Macro sync
+    fred_api_key: str = ""  # Optional – CSV download works without it
+    macro_sync_hour: int = 22  # UTC hour for daily FRED sync cron
+    macro_sync_minute: int = 0
+
     # Logging
     log_level: str = "INFO"
 

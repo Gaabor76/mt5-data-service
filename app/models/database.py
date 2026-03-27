@@ -1,8 +1,8 @@
 """Database connection and table definitions for MT5 market data."""
 
 from sqlalchemy import (
-    create_engine, Column, String, Integer, BigInteger, Float,
-    DateTime, Text, Boolean, Index, UniqueConstraint
+    create_engine, Column, String, Integer, BigInteger, Float, SmallInteger,
+    DateTime, Date, Numeric, Text, Boolean, Index, UniqueConstraint
 )
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
@@ -110,6 +110,51 @@ class DownloadJob(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     started_at = Column(DateTime, nullable=True)
     completed_at = Column(DateTime, nullable=True)
+
+
+class MacroDaily(Base):
+    """Daily macro-economic data for gold trading bias calculation."""
+    __tablename__ = "macro_daily"
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    date = Column(Date, nullable=False, unique=True)
+
+    # Raw data
+    dxy_close = Column(Numeric(10, 4), nullable=True)
+    dxy_high = Column(Numeric(10, 4), nullable=True)
+    dxy_low = Column(Numeric(10, 4), nullable=True)
+    us10y = Column(Numeric(8, 4), nullable=True)
+    us02y = Column(Numeric(8, 4), nullable=True)
+    t5yie = Column(Numeric(8, 4), nullable=True)
+    ffr = Column(Numeric(8, 4), nullable=True)
+
+    # Calculated values
+    real_rate = Column(Numeric(8, 4), nullable=True)       # us10y - t5yie
+    yield_curve = Column(Numeric(8, 4), nullable=True)     # us10y - us02y
+    fed_spread = Column(Numeric(8, 4), nullable=True)      # us02y - ffr
+    dxy_percentile = Column(Numeric(6, 2), nullable=True)  # 0-100, 60-day lookback
+
+    # Scores (individual components, -2 to +2)
+    realrate_score = Column(SmallInteger, nullable=True)
+    dxy_score = Column(SmallInteger, nullable=True)
+    yc_score = Column(SmallInteger, nullable=True)
+    fed_score = Column(SmallInteger, nullable=True)
+    cb_score = Column(SmallInteger, default=0)  # manual input, default neutral
+
+    # Weighted & final
+    macro_score_raw = Column(Numeric(6, 2), nullable=True)
+    macro_score_pct = Column(Numeric(6, 2), nullable=True)  # 0-100 normalized
+    macro_bias = Column(SmallInteger, nullable=True)         # -2 to +2
+
+    # Metadata
+    source = Column(String(20), default="fred")  # 'fred', 'csv_import', 'manual'
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    __table_args__ = (
+        Index("idx_macro_daily_date", "date"),
+        Index("idx_macro_daily_bias", "macro_bias"),
+    )
 
 
 def init_db():
